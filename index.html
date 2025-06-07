@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Watson Assistant</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4a90e2 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(74, 144, 226, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(30, 60, 114, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(42, 82, 152, 0.3) 0%, transparent 50%);
+      z-index: -1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.8), rgba(42, 82, 152, 0.6));
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 15px 0;
+      margin: 10px 20px;
+      border-radius: 15px;
+      animation: slideInDown 0.8s ease-out 0.2s both;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    nav a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    nav a:hover::before {
+      left: 100%;
+    }
+
+    nav a:hover {
+      background: linear-gradient(45deg, #4a90e2, #87ceeb);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(74, 144, 226, 0.4);
+    }
+
+    .container {
+      display: flex;
+      padding: 30px;
+      gap: 30px;
+      animation: slideInUp 0.8s ease-out 0.4s both;
+    }
+
+    .sidebar {
+      width: 25%;
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.4), rgba(42, 82, 152, 0.3));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 25px;
+      border-radius: 20px;
+      animation: glow 4s ease-in-out infinite;
+      height: fit-content;
+    }
+
+    .sidebar h3 {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 1.4em;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      margin-bottom: 15px;
+    }
+
+    .sidebar a {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      padding: 12px 15px;
+      display: block;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      background: rgba(74, 144, 226, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar a:hover {
+      background: linear-gradient(45deg, rgba(74, 144, 226, 0.4), rgba(135, 206, 235, 0.3));
+      transform: translateX(10px);
+      color: white;
+      box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+    }
+
+    .content {
+      flex: 1;
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.4), rgba(42, 82, 152, 0.3));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 30px;
+      border-radius: 20px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #1e3c72, #4a90e2, #87ceeb, #2a5298, #1e3c72);
+      background-size: 300% 300%;
+      border-radius: 20px;
+      z-index: -1;
+      animation: gradientBorder 4s ease infinite;
+      opacity: 0.6;
+    }
+
+    .content h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(45deg, #87ceeb, #4a90e2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .content p {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    .content ul {
+      margin-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    .content li {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: rgba(74, 144, 226, 0.2);
+      border-radius: 8px;
+      border-left: 4px solid #87ceeb;
+      transition: all 0.3s ease;
+    }
+
+    .content li:hover {
+      background: rgba(74, 144, 226, 0.3);
+      transform: translateX(10px);
+    }
+
+    .action-buttons {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: inline-block;
+      color: white;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #1e3c72, #4a90e2);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(45deg, #2a5298, #87ceeb);
+    }
+
+    .btn-accent {
+      background: linear-gradient(45deg, #4a90e2, #6bb6ff);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(74, 144, 226, 0.4);
+    }
+
+    #watson-assistant {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .particle {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: rgba(135, 206, 235, 0.7);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: floatUp 8s infinite linear;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(100vh) scale(0);
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(90vh) scale(1);
+      }
+      90% {
+        opacity: 1;
+        transform: translateY(10vh) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(0vh) scale(0);
+      }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 20px;
+      }
+      
+      .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      
+      nav {
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px;
+      }
+      
+      header h1 {
+        font-size: 2em;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#">Dashboard</a>
+    <a href="#">Courses</a>
+    <a href="#">Assignments</a>
+    <a href="#">Messages</a>
+    <a href="#">Profile</a>
+  </nav>
+
+  <div class="container">
+    <div class="sidebar">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="#">My Courses</a></li>
+        <li><a href="#">Upcoming Deadlines</a></li>
+        <li><a href="#">Grades</a></li>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Progress</a></li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <h2>Hello, Student!</h2>
+      <p>This is your learning space. You can:</p>
+      <ul>
+        <li>Submit assignments</li>
+        <li>Watch recorded lectures</li>
+        <li>Message your instructors</li>
+        <li>Use the chatbot for help anytime</li>
+      </ul>
+      <p>Start exploring now!</p>
+    </div>
+  </div>
+
+  <div id="watson-assistant"></div>
+<script>
+  window.watsonAssistantChatOptions = {
+    integrationID: "2d2640c7-9ee8-4f2b-9233-51bb10567ba0", 
+    region: "au-syd", 
+    serviceInstanceID: "f61417aa-42db-47c6-9e2a-5df159b0bb08", 
+    onLoad: async (instance) => { await instance.render(); }
+  };
+  setTimeout(function(){
+    const t=document.createElement('script');
+    t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+    document.head.appendChild(t);
+  });
+
+  function createParticle() {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + 'vw';
+    particle.style.animationDelay = Math.random() * 8 + 's';
+    particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
+    document.body.appendChild(particle);
+    
+    setTimeout(() => {
+      particle.remove();
+    }, 8000);
+  }
+  setInterval(createParticle, 300);
+</script>
+
+</body>
+</html>
